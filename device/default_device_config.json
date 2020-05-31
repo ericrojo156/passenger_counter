@@ -9,6 +9,6 @@
             "b": 0,
             "order": 1
         },
-        "onboardingDirectionAngleDegrees": 0
+        "onBoardingDirection": [1, 1]
     }
 }
