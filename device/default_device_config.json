@@ -1,0 +1,14 @@
+{
+    "isMaster": true,
+    "otherDevicesOnLAN": [],
+    "trackGPS": true,
+    "allowedBoarding": ["IN", "OUT"],
+    "dividerLine": {
+        "equation": {
+            "a": 1,
+            "b": 0,
+            "order": 1
+        },
+        "onboardingDirectionAngleDegrees": 0
+    }
+}
