@@ -9,10 +9,10 @@ class DeviceState:
             "lng": 0
         }
 
-    def incrementCount(self):
+    def incCount(self):
         self.count = self.count + 1
 
-    def decrementCount(self):
+    def decCount(self):
         self.count = self.count - 1
 
     def update_gps_coords(self, lat, lng):
