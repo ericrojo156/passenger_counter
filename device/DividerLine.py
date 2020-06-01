@@ -6,8 +6,9 @@ class DividerLine:
         if (len(serialized) == 0):
             raise Exception("Failed to load serialized data for the divider line from the device configuration file.")
         line_dict = json.loads(serialized)
-        self.onboarding_direction_vector = self.getOnBoardingDirection(line_dict)
         line_equation = self.getLineEquation(line_dict)
+
+        self.onboarding_direction_vector = self.getOnBoardingDirection(line_dict)
         self.slope = line_equation.get("a", 1)
         self.intercept = line_equation.get("b", 0)
         self.order = line_equation.get("order", 1)
