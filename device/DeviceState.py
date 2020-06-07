@@ -1,4 +1,4 @@
-from DeviceConfig import DeviceConfig
+from device.DeviceConfig import DeviceConfig
 
 class DeviceState:
     def __init__(self):
@@ -13,7 +13,8 @@ class DeviceState:
         self.count = self.count + 1
 
     def decCount(self):
-        self.count = self.count - 1
+        if (self.count > 0):
+            self.count = self.count - 1
 
     def update_gps_coords(self, lat, lng):
         self.gps_coords["lat"] = lat
