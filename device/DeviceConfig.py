@@ -4,9 +4,14 @@ from device.DividerLine import DividerLine
 
 # Responsible for mapping the internal structure of the configuration json to configuration API to be queried/modifying by the device at runtime
 class DeviceConfig:
-    default_config_filepath = os.getcwd() + "/device/default_device_config.json"
-    custom_config_filepath = os.getcwd() + "/device/device_config.json"
-    def __init__(self):
+    config_dir_path = os.getcwd()
+    default_config_filepath = "/default_device_config.json"
+    custom_config_filepath = "/device_config.json"
+    def __init__(self, _config_dir_path=None):
+        if (_config_dir_path != None):
+            self.config_dir_path = _config_dir_path
+        self.default_config_filepath = self.config_dir_path + self.default_config_filepath
+        self.custom_config_filepath = self.config_dir_path + self.custom_config_filepath
         if (os.path.isfile(self.custom_config_filepath)):
             self.config_file_path = self.custom_config_filepath
         else:
@@ -37,7 +42,7 @@ class DeviceConfig:
     def is_master(self):
         return self.config_dict.get("isMaster", True)
 
-    def set_is_master(self, is_master):
+    def set_as_master(self, is_master):
         self.config_dict["isMaster"] = is_master
         self.save_config()
 
@@ -53,3 +58,23 @@ class DeviceConfig:
     def set_divider_line(self, divider_line):
         self.config_dict["dividerLine"] = divider_line.to_dict()
         self.save_config()
+
+    def set_custom_configs(self, custom_configs):
+        keys = custom_configs.keys()
+        for key in keys:
+            try:
+                self.config_dict[key] = custom_configs[key]
+            except KeyError:
+                return False
+        self.save_config()
+        return True
+
+    def get_address(self):
+        return self.config_dict["deviceAddress"]
+
+    def set_address(self, address):
+        self.config_dict["deviceAddress"] = address
+        self.save_config()
+
+    def get_device_label(self):
+        return self.config_dict["deviceLabel"]

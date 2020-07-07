@@ -59,7 +59,7 @@ def deviceConfigTests_customConfig():
     serialized_line = json.dumps(line)
     divider_line = DividerLine(serialized_line)
     config.set_divider_line(divider_line)
-    config.set_is_master(False)
+    config.set_as_master(False)
     assert(config.divider_line().slope == line["equation"]["a"])
     assert(config.divider_line().intercept == line["equation"]["b"])
     assert(config.divider_line().order == line["equation"]["order"])
