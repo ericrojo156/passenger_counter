@@ -1,6 +1,7 @@
 from flask import Flask, request
 from device.DeviceState import DeviceState
-from device.DeviceConfig import DeviceConfig
+from config_api.DeviceConfig import DeviceConfig
+from config_api.EndpointDeviceConfigIO import EndpointDeviceConfigIO
 from device.DeviceController import DeviceController
 import json
 import argparse
@@ -26,7 +27,7 @@ def index():
 if __name__ == "__main__":
     args = parser.parse_args()
     state = DeviceState()
-    config =  DeviceConfig(args.configDir)
+    config = DeviceConfig(EndpointDeviceConfigIO(args.configDir))
     controller = DeviceController(state, config)
     controller.set_address(f"http://localhost:{args.port}")
     app.run(host="localhost", port=args.port)

@@ -1,5 +1,5 @@
-from nework_layer.lan_stub import lan_send
-from nework_layer.external_network_stub import external_post
+from network_layer.lan_stub import lan_send
+from network_layer.external_network_stub import post_APC_Record
 from device_cli import CUSTOM_CONFIG, PULL_DATA
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -47,7 +47,7 @@ class DeviceController:
 
     def publish_data(self):
         if (self.config.is_master()):
-            external_post(APC_Record(self.device_state))
+            post_APC_Record(APC_Record(self.device_state))
 
     def pull_and_publish_data(self):
         others_on_lan = self.config.other_LAN_devices()
