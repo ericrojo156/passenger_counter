@@ -1,36 +1,20 @@
 import json
 import os
 from device.DividerLine import DividerLine
+from config_api.ConfigIO import ConfigIO
 
 # Responsible for mapping the internal structure of the configuration json to configuration API to be queried/modifying by the device at runtime
 class DeviceConfig:
-    config_dir_path = os.getcwd()
-    default_config_filepath = "/default_device_config.json"
-    custom_config_filepath = "/device_config.json"
-    def __init__(self, _config_dir_path=None):
-        if (_config_dir_path != None):
-            self.config_dir_path = _config_dir_path
-        self.default_config_filepath = self.config_dir_path + self.default_config_filepath
-        self.custom_config_filepath = self.config_dir_path + self.custom_config_filepath
-        if (os.path.isfile(self.custom_config_filepath)):
-            self.config_file_path = self.custom_config_filepath
-        else:
-            self.config_file_path = self.default_config_filepath
+    def __init__(self, _config_io: ConfigIO):
+        self.config_io = _config_io
         self.load_config()
 
     def load_config(self):
-        filepath = self.config_file_path
-        with open(self.config_file_path) as f:
-            config_json_str = f.read()
-        self.config_dict = json.loads(config_json_str)
+        config_json = self.config_io.load_config_json()
+        self.config_dict = json.loads(config_json)
 
     def save_config(self):
-        filepath = self.custom_config_filepath
-        if (os.path.isfile(filepath)):
-            os.remove(filepath)
-        with open(filepath, 'x') as f:
-            config_json_str = json.dumps(self.config_dict)
-            f.write(config_json_str)
+        self.config_io.save_config_json(config_json=json.dumps(self.config_dict))
 
     def gps_is_enabled(self):
         return self.config_dict.get("trackGPS", True)
@@ -50,9 +34,7 @@ class DeviceConfig:
         return self.config_dict.get("otherDevicesOnLAN", [])
 
     def revert_to_default(self):
-        self.config_file_path = self.default_config_filepath
-        if (os.path.isfile(self.custom_config_filepath)):
-            os.remove(self.custom_config_filepath)
+        self.config_io.select_default_source()
         self.load_config()
 
     def set_divider_line(self, divider_line):

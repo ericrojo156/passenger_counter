@@ -1,11 +1,13 @@
 from device.DeviceState import DeviceState
-from device.DeviceConfig import DeviceConfig
+from config_api import DeviceConfig
 from device.DividerLine import DividerLine
+from config_api.DeviceConfig import DeviceConfig
+from config_api.EndpointDeviceConfigIO import EndpointDeviceConfigIO
 import json
 import os
 
-default_config_filepath = os.getcwd() + "/device/default_device_config.json"
-custom_config_filepath = os.getcwd() + "/device/device_config.json"
+default_config_filepath = os.getcwd() + "/config_api/default_device_config.json"
+custom_config_filepath = os.getcwd() + "/config_api/device_config.json"
 
 def deviceStateTests():
     device = DeviceState()
@@ -27,8 +29,8 @@ def deviceStateTests():
 def deviceConfigTests_defaultConfig():
     if (os.path.isfile(custom_config_filepath)):
         os.remove(custom_config_filepath)
-    config = DeviceConfig()
-    assert(config.config_file_path == default_config_filepath)
+    config = DeviceConfig(EndpointDeviceConfigIO())
+    assert(config.config_io.config_file_path == default_config_filepath)
     default_line = {
         "equation": {
             "a": 1,
@@ -42,12 +44,12 @@ def deviceConfigTests_defaultConfig():
     assert(config.divider_line().intercept == default_line["equation"]["b"])
     assert(config.divider_line().order == default_line["equation"]["order"])
     assert(config.divider_line().onboarding_direction_vector == default_line["onBoardingDirection"])
-    assert(config.is_master() == True)
+    assert(not config.is_master())
     assert(len(config.other_LAN_devices()) == 0)
-    assert(config.is_master())
+    assert(not config.is_master())
 
 def deviceConfigTests_customConfig():
-    config = DeviceConfig()
+    config = DeviceConfig(EndpointDeviceConfigIO())
     line = {
         "equation": {
             "a": 3,
@@ -59,20 +61,20 @@ def deviceConfigTests_customConfig():
     serialized_line = json.dumps(line)
     divider_line = DividerLine(serialized_line)
     config.set_divider_line(divider_line)
-    config.set_as_master(False)
+    config.set_as_master(True)
     assert(config.divider_line().slope == line["equation"]["a"])
     assert(config.divider_line().intercept == line["equation"]["b"])
     assert(config.divider_line().order == line["equation"]["order"])
     assert(config.divider_line().onboarding_direction_vector == line["onBoardingDirection"])
-    assert(not config.is_master())
+    assert(config.is_master())
 
-    nextSession = DeviceConfig()
-    assert(nextSession.config_file_path == custom_config_filepath)
+    nextSession = DeviceConfig(EndpointDeviceConfigIO())
+    assert(nextSession.config_io.config_file_path == custom_config_filepath)
     assert(nextSession.divider_line().slope == line["equation"]["a"])
     assert(nextSession.divider_line().intercept == line["equation"]["b"])
     assert(nextSession.divider_line().order == line["equation"]["order"])
     assert(nextSession.divider_line().onboarding_direction_vector == line["onBoardingDirection"])
-    assert(not config.is_master())
+    assert(config.is_master())
 
     nextSession.revert_to_default()
     default_line = {
@@ -87,19 +89,18 @@ def deviceConfigTests_customConfig():
     assert(nextSession.divider_line().intercept == default_line["equation"]["b"])
     assert(nextSession.divider_line().order == default_line["equation"]["order"])
     assert(nextSession.divider_line().onboarding_direction_vector == default_line["onBoardingDirection"])
-    assert(nextSession.is_master())
+    assert(not nextSession.is_master())
 
-    freshConfig = DeviceConfig()
-    assert(freshConfig.config_file_path == default_config_filepath)
+    freshConfig = DeviceConfig(EndpointDeviceConfigIO())
+    assert(freshConfig.config_io.config_file_path == default_config_filepath)
     assert(not os.path.isfile(custom_config_filepath))
     assert(freshConfig.gps_is_enabled() == True)
     assert(freshConfig.divider_line().slope == default_line["equation"]["a"])
     assert(freshConfig.divider_line().intercept == default_line["equation"]["b"])
     assert(freshConfig.divider_line().order == default_line["equation"]["order"])
     assert(freshConfig.divider_line().onboarding_direction_vector == default_line["onBoardingDirection"])
-    assert(freshConfig.is_master() == True)
     assert(len(config.other_LAN_devices()) == 0)
-    assert(freshConfig.is_master())
+    assert(not freshConfig.is_master())
 
 if __name__ == "__main__":
     deviceStateTests()
