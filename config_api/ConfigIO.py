@@ -3,7 +3,7 @@ import typing
 
 class ConfigIO(ABC):
     @abstractmethod
-    def save_config_json(self, config_dict: str):
+    def save_config_json(self, config_json: str):
         pass
     @abstractmethod
     def load_config_json(self) -> str:

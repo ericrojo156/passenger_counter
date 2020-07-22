@@ -7,16 +7,40 @@ app = Flask(__name__)
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int)
 
-dispatch_controller = None
+dispatch_controller: DispatchController = None
 
-@app.route("/", methods=["POST"])
-def index():
-    request_json = request.json
+@app.route("/set_lan_configs", methods=["POST"])
+def set_lan_configs():
+    data = request.json
     try:
-        print("Dispatch received APC Record:")
-        print(request_json)
-        response_dict = dispatch_controller.handle_request(request_json)
-        response_dict = {}
+        response_dict = dispatch_controller.set_lan_configs(data)
+        return json.dumps(response_dict)
+    except:
+        return json.dumps({"status": "ERROR"})
+
+@app.route("get_lan_configs", methods=["POST"])
+def get_lan_configs():
+    data = request.json
+    try:
+        response_dict = dispatch_controller.get_lan_configs(data)
+        return json.dumps(response_dict)
+    except:
+        return json.dumps({"status": "ERROR"})
+
+@app.route("/apc_record", methods=["POST"])
+def record():
+    data = request.json
+    try:
+        response_dict = dispatch_controller.push_apc_record(data)
+        return json.dumps(response_dict)
+    except:
+        return json.dumps({"status": "ERROR"})
+
+@app.route("/refresh", methods=["POST"])
+def get_latest_records():
+    data = request.json
+    try:
+        response_dict = dispatch_controller.get_latest_apc_records(data)
         return json.dumps(response_dict)
     except:
         return json.dumps({"status": "ERROR"})

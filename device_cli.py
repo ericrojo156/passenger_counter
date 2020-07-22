@@ -5,8 +5,12 @@ cli_parser.add_argument('--address', type=str)
 cli_parser.add_argument("--command", type=str)
 cli_parser.add_argument('--data', default=None, type=str)
 
-CUSTOM_CONFIG = "custom_config"
+# device CLI commands:
+SET_CONFIG = "set_config"
 PULL_DATA = "pull_data"
+GET_CONFIG = "get_config"
+INC_COUNTER = "increment_counter"
+DEC_COUNTER = "decrement_counter"
 
 if __name__ == "__main__":
     cli_args = cli_parser.parse_args()
