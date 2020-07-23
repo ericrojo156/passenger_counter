@@ -1,2 +1,4 @@
 device/device_config.json
 **/__pycache__
+kill_script.sh
+.vscode/*
