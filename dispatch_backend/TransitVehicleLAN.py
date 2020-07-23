@@ -26,9 +26,16 @@ class TransitVehicleLAN:
             lan_devices_configs.append(device_config)
         return lan_devices_configs
 
-    def to_json(self):
+    def __str__(self):
         return json.dumps({
             "id": self.id,
             "master_device_address": self.master_device_address,
-            "latest_record": self.records[-1]
+            "latest_record": self.records[-1].to_json()
         })
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "master_device_address": self.master_device_address,
+            "latest_record": self.records[-1].to_dict()
+        }

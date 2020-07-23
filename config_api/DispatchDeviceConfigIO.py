@@ -14,17 +14,7 @@ class DispatchDeviceConfigIO(ConfigIO):
             self.device_address = _device_address
         else: # if device address is unspecified, then assign to master address (thereby assuming the config is to be loaded from the master device rather than a slave device)
             self.device_address = _master_device_address
-
-    #def _should_select_default(self):
-    #    result = True
-    #    try:
-    #        response_dict = request_device_config_json(config_json=config_json, master_device_address=self.master_device_address)
-    #        if (response_dict["status"] == "SUCCESS"):
-    #            result = response_dict["data"]["should_select_default"]
-    #    except Exception as e:
-    #        print(e)
-    #    return result
-
+            
     def save_config_json(self, config_json: str):
         try:
             self.config_json_cache = config_json

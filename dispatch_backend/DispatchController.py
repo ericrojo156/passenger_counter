@@ -23,7 +23,7 @@ class DispatchController:
 
     def get_lan_configs(self, data):
         master_device_address = data["master_device_address"]
-        config_json_list["config_json_list"] = []
+        config_json_list = []
         response_dict = {"status": "ERROR"}
         try:
             master_config = DeviceConfig(DispatchDeviceConfigIO(_master_device_address=master_device_address))
@@ -58,19 +58,18 @@ class DispatchController:
                 )
                 self.dispatch_vehicles[apc_record.id] = vehicle
                 response_dict["status"] = "SUCCESS"
-            print([[str(r) for r in self.dispatch_vehicles[key].records] for key in self.dispatch_vehicles.keys()])
+            #print([[str(r) for r in self.dispatch_vehicles[key].records] for key in self.dispatch_vehicles.keys()])
         except Exception as e:
             print(e)
         return response_dict
 
-    def get_latest_apc_records(self, data):
-        lan_ids = data["lan_ids"] # lan_ids is a list of ids for all LANs in the dispatch network (ie. all transit vehicles)
+    def get_latest_apc_records(self):
         response_dict = {"status": "ERROR"}
         data = {}
         try:
             dispatch_vehicles = self.dispatch_vehicles
-            for id in lan_ids:
-                data[id] = str(dispatch_vehicles[id].records[-1])
+            for id in dispatch_vehicles:
+                data[id] = dispatch_vehicles[id].to_dict()
                 response_dict["status"] = "SUCCESS"
         except KeyError as e:
             response_dict = {"status": "ERROR"}

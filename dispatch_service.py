@@ -24,7 +24,8 @@ def get_lan_configs():
     try:
         response_dict = dispatch_controller.get_lan_configs(data)
         return json.dumps(response_dict)
-    except:
+    except Exception as e:
+        print(e)
         return json.dumps({"status": "ERROR"})
 
 @app.route("/apc_record", methods=["POST"])
@@ -36,13 +37,13 @@ def record():
     except:
         return json.dumps({"status": "ERROR"})
 
-@app.route("/refresh", methods=["POST"])
+@app.route("/refresh", methods=["GET"])
 def get_latest_records():
-    data = request.json
     try:
-        response_dict = dispatch_controller.get_latest_apc_records(data)
+        response_dict = dispatch_controller.get_latest_apc_records()
         return json.dumps(response_dict)
-    except:
+    except Exception as e:
+        print(e)
         return json.dumps({"status": "ERROR"})
 
 if __name__ == "__main__":

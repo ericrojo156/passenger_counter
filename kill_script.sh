@@ -1,10 +1,10 @@
 #!/bin/bash
-kill -9 78644
-kill -9 78645
-kill -9 78646
-kill -9 78647
-kill -9 78648
-kill -9 78649
+kill -9 86875
+kill -9 86876
+kill -9 86877
+kill -9 86878
+kill -9 86879
+kill -9 86880
 rm simulated_network/device1/device_config.json
 rm simulated_network/device2/device_config.json
 rm simulated_network/device3/device_config.json
