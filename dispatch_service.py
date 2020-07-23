@@ -18,7 +18,7 @@ def set_lan_configs():
     except:
         return json.dumps({"status": "ERROR"})
 
-@app.route("get_lan_configs", methods=["POST"])
+@app.route("/get_lan_configs", methods=["POST"])
 def get_lan_configs():
     data = request.json
     try:

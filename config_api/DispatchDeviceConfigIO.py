@@ -1,8 +1,9 @@
 from config_api.ConfigIO import ConfigIO
 from network_layer.external_network_stub import configure_device, request_device_config_json
+import json
 
 class DispatchDeviceConfigIO(ConfigIO):
-    from_default_source = True
+    #from_default_source = True
     master_device_address = ""
 
     def __init__(self, _device_address="", _master_device_address=""):
@@ -13,31 +14,43 @@ class DispatchDeviceConfigIO(ConfigIO):
             self.device_address = _device_address
         else: # if device address is unspecified, then assign to master address (thereby assuming the config is to be loaded from the master device rather than a slave device)
             self.device_address = _master_device_address
-        self.from_default_source = True
+
+    #def _should_select_default(self):
+    #    result = True
+    #    try:
+    #        response_dict = request_device_config_json(config_json=config_json, master_device_address=self.master_device_address)
+    #        if (response_dict["status"] == "SUCCESS"):
+    #            result = response_dict["data"]["should_select_default"]
+    #    except Exception as e:
+    #        print(e)
+    #    return result
 
     def save_config_json(self, config_json: str):
-        self.config_json_cache = config_json
-        self.from_default_source = False
-        response_dict = configure_device(config_json=config_json, master_device_address=self.master_device_address)
-        if (response_dict["status"] == "ERROR"):
+        try:
+            self.config_json_cache = config_json
+            response_dict = configure_device(config_json=config_json, master_device_address=self.master_device_address)
+            if (response_dict["status"] == "ERROR"):
+                self.error_state = True
+            else:
+                self.error_state = False
+        except Exception as e:
+            print(e)
             self.error_state = True
-        else:
-            self.error_state = False
 
     def load_config_json(self) -> str:
         config_json = self.config_json_cache
         if (not config_json):
             response_dict = request_device_config_json(
                 master_device_address=self.master_device_address,
-                device_address=self.device_address,
-                from_default_source=self.from_default_source
+                device_address=self.device_address
             )
             if (response_dict["status"] == "SUCCESS"):
-                config_json = response_dict["data"]
+                config_json = json.dumps(response_dict["data"])
                 self.config_json_cache = config_json
             else:
-                self.config_json_cache = {"EMPTY_CONFIG": f"unable to load configuration from device at {self.device_address}"}
+                self.config_json_cache = json.dumps({"EMPTY_CONFIG": f"unable to load configuration from device at {self.device_address}"})
         return self.config_json_cache
 
-    def select_default_source(self):
-        self.from_default_source = True
+    # this implementation should be agnostic to whether its remote module decides to load the default or custom config source
+    def select_default_source(self, should_select=True):
+        pass

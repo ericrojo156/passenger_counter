@@ -9,5 +9,5 @@ class ConfigIO(ABC):
     def load_config_json(self) -> str:
         pass
     @abstractmethod
-    def select_default_source(self):
+    def select_default_source(self, should_select=True):
         pass

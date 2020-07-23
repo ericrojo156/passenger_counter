@@ -30,10 +30,11 @@ class DeviceController:
         status = "ERROR"
         try:
             command = request_dict["command"]
+            data = request_dict["data"]
 
             if (command == SET_CONFIG):
-                config_dict = json.loads(request_dict["config_json"])
-                succeeded = self.config.set_custom_configs(config_dict)
+                config_json = data
+                succeeded = self.config.set_custom_configs(config_json)
                 # must refresh the background task management for this device, for the scenario that it has changed status as master or not (only master devices should be performing the background task)
                 self.manage_master_daemons()
 
@@ -43,14 +44,14 @@ class DeviceController:
 
             elif (command == GET_CONFIG):
                 this_address = self.config.get_address()
-                device_address = request_dict["device_address"]
+                device_address = data["device_address"]
                 if (this_address == device_address):
-                    config_json = self.config.load_config_json(request_dict["from_default_source"])
+                    config_json = self.config.load_config_json()
                     succeeded = len(config_json) > 0
-                    data = config_json
-                else: # get config froconfig_dictce (not master) on the same LAN
-                    master_device_address = request_dict["master_device_address"]
-                    response_dict = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG, data={})
+                    data = json.loads(config_json)
+                else: # get config from config_dict (not master) on the same LAN
+                    master_device_address = data["master_device_address"]
+                    response_dict = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG)
             if (succeeded):
                 status = "SUCCESS"
 
@@ -63,7 +64,7 @@ class DeviceController:
     def publish_data(self):
         if (self.config.is_master()):
             id = self.config.get_id()
-            post_APC_Record(master_device_address=self.config.get_address(), apc_record=APC_Record(id, self.device_state))
+            post_APC_Record(master_device_address=self.config.get_address(), apc_record=APC_Record(id=id, master_device_state=self.device_state))
 
     def pull_and_publish_data(self):
         others_on_lan = self.config.other_LAN_devices()

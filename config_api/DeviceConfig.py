@@ -16,14 +16,13 @@ class DeviceConfig:
         id = None
         try:
             id = self.config_dict["id"]
-        except KeyError as e:
+        except KeyError:
             id = str(uuid.uuid4())
             self.config_dict["id"] = id
             self.save_config()
         return id
 
-    def load_config_json(self, from_default_source=False):
-        self.config_io.select_default_source(from_default_source)
+    def load_config_json(self):
         config_json = self.config_io.load_config_json()
         return config_json
 
@@ -59,13 +58,15 @@ class DeviceConfig:
         self.config_dict["dividerLine"] = divider_line.to_dict()
         self.save_config()
 
-    def set_custom_configs(self, config_dict):
+    def set_custom_configs(self, config_json):
+        config_dict = json.loads(config_json)
         keys = config_dict.keys()
         try:
             for key in keys:
                 self.config_dict[key] = config_dict[key]
             self.save_config()
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
         return True
 

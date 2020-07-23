@@ -1,5 +1,6 @@
 import requests
 import argparse
+
 cli_parser = argparse.ArgumentParser()
 cli_parser.add_argument('--address', type=str)
 cli_parser.add_argument("--command", type=str)
