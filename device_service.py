@@ -18,7 +18,6 @@ controller = None
 def index():
     request_json = request.json
     try:
-        print(request_json)
         response_dict = controller.handle_request(request_json)
         return json.dumps(response_dict)
     except:

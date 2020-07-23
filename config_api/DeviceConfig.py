@@ -1,16 +1,33 @@
 import json
 import os
+import uuid
 from device.DividerLine import DividerLine
 from config_api.ConfigIO import ConfigIO
 
 # Responsible for mapping the internal structure of the configuration json to configuration API to be queried/modifying by the device at runtime
 class DeviceConfig:
-    def __init__(self, _config_io: ConfigIO):
-        self.config_io = _config_io
+    def __init__(self, config_io: ConfigIO):
+        self.config_io = config_io
         self.load_config()
+        self.id = self.get_id()
+
+    # NOTE: saves the id to device config if the request for id fails
+    def get_id(self):
+        id = None
+        try:
+            id = self.config_dict["id"]
+        except KeyError:
+            id = str(uuid.uuid4())
+            self.config_dict["id"] = id
+            self.save_config()
+        return id
+
+    def load_config_json(self):
+        config_json = self.config_io.load_config_json()
+        return config_json
 
     def load_config(self):
-        config_json = self.config_io.load_config_json()
+        config_json = self.load_config_json()
         self.config_dict = json.loads(config_json)
 
     def save_config(self):
@@ -41,14 +58,16 @@ class DeviceConfig:
         self.config_dict["dividerLine"] = divider_line.to_dict()
         self.save_config()
 
-    def set_custom_configs(self, custom_configs):
-        keys = custom_configs.keys()
-        for key in keys:
-            try:
-                self.config_dict[key] = custom_configs[key]
-            except KeyError:
-                return False
-        self.save_config()
+    def set_custom_configs(self, config_json):
+        config_dict = json.loads(config_json)
+        keys = config_dict.keys()
+        try:
+            for key in keys:
+                self.config_dict[key] = config_dict[key]
+            self.save_config()
+        except Exception as e:
+            print(e)
+            return False
         return True
 
     def get_address(self):

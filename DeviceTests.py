@@ -49,6 +49,8 @@ def deviceConfigTests_defaultConfig():
     assert(not config.is_master())
 
 def deviceConfigTests_customConfig():
+    if (os.path.isfile(custom_config_filepath)):
+        os.remove(custom_config_filepath)
     config = DeviceConfig(EndpointDeviceConfigIO())
     line = {
         "equation": {
@@ -93,7 +95,7 @@ def deviceConfigTests_customConfig():
 
     freshConfig = DeviceConfig(EndpointDeviceConfigIO())
     assert(freshConfig.config_io.config_file_path == default_config_filepath)
-    assert(not os.path.isfile(custom_config_filepath))
+    assert(os.path.isfile(custom_config_filepath))
     assert(freshConfig.gps_is_enabled() == True)
     assert(freshConfig.divider_line().slope == default_line["equation"]["a"])
     assert(freshConfig.divider_line().intercept == default_line["equation"]["b"])
@@ -103,6 +105,8 @@ def deviceConfigTests_customConfig():
     assert(not freshConfig.is_master())
 
 if __name__ == "__main__":
+    if (os.path.isfile(custom_config_filepath)):
+        os.remove(custom_config_filepath)
     deviceStateTests()
     deviceConfigTests_defaultConfig()
     deviceConfigTests_customConfig()
