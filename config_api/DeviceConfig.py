@@ -36,7 +36,6 @@ class DeviceConfig:
 
     def save_config(self):
         config_json = json.dumps(self.config_dict)
-        print(type(config_json))
         self.config_io.save_config_json(config_json=config_json)
 
     def gps_is_enabled(self):
