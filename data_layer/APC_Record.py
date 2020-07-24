@@ -10,9 +10,9 @@ class APC_Record:
             self.master_device = DeviceState()
         else:
             self.master_device = master_device_state
-            if (len(self.doors) == 0):
-                for device_state in master_device_state.devices_state_list:
-                    self.doors.append(device_state)
+            for device_state in master_device_state.devices_state_list:
+                print(device_state)
+                self.doors.append(device_state)
 
     def to_dict(self):
         return {

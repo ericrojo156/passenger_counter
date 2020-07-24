@@ -72,6 +72,49 @@ class DeviceController:
                     data = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG, data=data)
                     succeeded = len(data) > 0
 
+            elif (command == INC):
+                config = self.config
+                this_address = config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (this_address != data["device_address"]):
+                    response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=INC, data=data)
+                    succeeded = response_dict["status"] == "SUCCESS"
+                else:
+                    self.device_state.incCount()
+                    data["device_state"] = str(self.device_state)
+                    succeeded = True
+
+            elif (command == DEC):
+                config = self.config
+                this_address = config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (this_address != data["device_address"]):
+                    response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=DEC, data=data)
+                    succeeded = response_dict["status"] == "SUCCESS"
+                else:
+                    self.device_state.decCount()
+                    data["device_state"] = str(self.device_state)
+                    succeeded = True
+
+            elif (command == GPS):
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (self.config.gps_is_enabled()):
+                    if (self.config.get_address() == data["device_address"]):
+                        self.device_state.update_gps_coords(lat=data["lat"], lng=data["lng"])
+                    else:
+                        response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=GPS, data=data)
+
+            elif (command == GET_DEVICE_STATE):
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (self.config.get_address() == data["device_address"]):
+                    return {"status": "SUCCESS", "state": str(self.device_state)}
+                else:
+                    return lan_send(fromAddress=self.config.get_address(), toAddress=data["device_address"], command=GET_DEVICE_STATE, data=data)
+
             if (succeeded):
                 status = "SUCCESS"
 

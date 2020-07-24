@@ -1,4 +1,4 @@
-python device_cli.py --address "http://localhost:3000" --command "set_config" --data '{"deviceAddress": "http://localhost:3000", "deviceLabel": "master", "isMaster": true, "otherDevicesOnLAN": ["http://localhost:3001", "http://localhost:3002", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"]}'
+python device_cli.py --address "http://localhost:3000" --command "set_config" --data '{"deviceAddress": "http://localhost:3000", "deviceLabel": "master", "isMaster": true, "otherDevicesOnLAN": ["http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"]}'
 python device_cli.py --address "http://localhost:3001" --command "set_config" --data '{"deviceAddress": "http://localhost:3001", "deviceLabel": "slave1"}'
 python device_cli.py --address "http://localhost:3002" --command "set_config" --data '{"deviceAddress": "http://localhost:3002", "deviceLabel": "slave2"}'
 python device_cli.py --address "http://localhost:3003" --command "set_config" --data '{"deviceAddress": "http://localhost:3003", "deviceLabel": "slave3"}'
