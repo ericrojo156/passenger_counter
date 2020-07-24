@@ -33,10 +33,26 @@ class DeviceController:
             data = request_dict["data"]
 
             if (command == SET_CONFIG):
-                config_json = data
-                succeeded = self.config.set_custom_configs(config_json)
-                # must refresh the background task management for this device, for the scenario that it has changed status as master or not (only master devices should be performing the background task)
-                self.manage_master_daemons()
+                try:
+                    data = data["set_config"]
+                except:
+                    config_json = data
+                this_address = self.config.get_address()
+                if (type(data) == dict):
+                    to_address = data["deviceAddress"]
+                    config_json = json.dumps(data)
+                    is_endpoint = this_address == data["deviceAddress"]
+                else:
+                    to_address = json.loads(data)["deviceAddress"]
+                    is_endpoint = this_address == json.loads(data)["deviceAddress"]
+                if (is_endpoint):
+                    succeeded = self.config.set_custom_configs(config_json)
+                    # must refresh the background task management for this device, for the scenario that it has changed status as master or not (only master devices should be performing the background task)
+                    self.manage_master_daemons()
+                else:
+                    if (type(data) != dict):
+                        data = json.load(data)
+                    response_dict = lan_send(fromAddress=this_address, toAddress=to_address, command=SET_CONFIG, data=data)
 
             elif (command == PULL_DATA):
                 data = {"device_label": self.config.get_device_label(), "device_state": str(self.device_state)}
@@ -44,14 +60,66 @@ class DeviceController:
 
             elif (command == GET_CONFIG):
                 this_address = self.config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
                 device_address = data["device_address"]
                 if (this_address == device_address):
                     config_json = self.config.load_config_json()
                     succeeded = len(config_json) > 0
                     data = json.loads(config_json)
-                else: # get config from config_dict (not master) on the same LAN
+                else: # get config from device (not master) on the same LAN
                     master_device_address = data["master_device_address"]
-                    response_dict = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG)
+                    data = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG, data=data)
+                    succeeded = len(data) > 0
+
+            elif (command == INC):
+                config = self.config
+                this_address = config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (this_address != data["device_address"]):
+                    response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=INC, data=data)
+                    succeeded = response_dict["status"] == "SUCCESS"
+                else:
+                    self.device_state.incCount()
+                    data["device_state"] = str(self.device_state)
+                    succeeded = True
+
+            elif (command == DEC):
+                config = self.config
+                this_address = config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (this_address != data["device_address"]):
+                    response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=DEC, data=data)
+                    succeeded = response_dict["status"] == "SUCCESS"
+                else:
+                    self.device_state.decCount()
+                    data["device_state"] = str(self.device_state)
+                    succeeded = True
+
+            elif (command == GPS):
+                this_address = self.config.get_address()
+                print("TRACE")
+                print(data)
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (self.config.gps_is_enabled()):
+                    if (self.config.get_address() == data["device_address"]):
+                        self.device_state.update_gps_coords(lat=data["lat"], lng=data["lng"])
+                        succeeded = True
+                    else:
+                        response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=GPS, data=data)
+                        succeeded = response_dict["status"] == "SUCCESS"
+
+            elif (command == GET_DEVICE_STATE):
+                if (type(data) == str):
+                    data = json.loads(data)
+                if (self.config.get_address() == data["device_address"]):
+                    return {"status": "SUCCESS", "state": str(self.device_state)}
+                else:
+                    return lan_send(fromAddress=self.config.get_address(), toAddress=data["device_address"], command=GET_DEVICE_STATE, data=data)
+
             if (succeeded):
                 status = "SUCCESS"
 

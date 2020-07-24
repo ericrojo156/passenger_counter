@@ -11,31 +11,32 @@ class DispatchController:
         self.dispatch_vehicles = {}
 
     def set_lan_configs(self, data):
-        config_json_list = json.loads(data["config_json_list"])
+        device_config_list = data["device_config_list"]
         master_device_address = data["master_device_address"]
-        for config_json in config_json_list:
-            device_address = config["address"]
-            config_io = DispatchDeviceConfigIO(_device_address=device_address, _master_device_address=master_device_address)
-            config_io.save_config_json(config_json)
-            if (config_io.error_state):
+        for config_dict in device_config_list:
+            device_address = config_dict["deviceAddress"]
+            device_config = DeviceConfig(DispatchDeviceConfigIO(_device_address=device_address, _master_device_address=master_device_address))
+            device_config.set_config(config_dict)
+            device_config.save_config()
+            if (device_config.config_io.error_state):
                 return {"status": "ERROR", "device": device_address}
         return {"status": "SUCCESS"}
 
     def get_lan_configs(self, data):
         master_device_address = data["master_device_address"]
-        config_json_list = []
+        device_config_list = []
         response_dict = {"status": "ERROR"}
         try:
             master_config = DeviceConfig(DispatchDeviceConfigIO(_master_device_address=master_device_address))
+            device_config_list.append(master_config.load_config()) # this will use the cached result, instead of making a new network request
             device_addresses = master_config.other_LAN_devices()
             for device_address in device_addresses:
-                config_io = DispatchDeviceConfigIO(_device_address=device_address, _master_device_address=master_device_address)
-                config_json = config_io.load_config_json()
-                config_json_list.append(config_json)
+                device_config = DeviceConfig(DispatchDeviceConfigIO(_device_address=device_address, _master_device_address=master_device_address))
+                device_config_list.append(device_config.load_config()["data"])
             response_dict["status"] = "SUCCESS"
         except:
             print(e)
-        response_dict["config_json_list"] = config_json_list
+        response_dict["device_config_list"] = device_config_list
         return response_dict
 
     def push_apc_record(self, data):

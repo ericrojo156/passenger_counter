@@ -15,7 +15,8 @@ def set_lan_configs():
     try:
         response_dict = dispatch_controller.set_lan_configs(data)
         return json.dumps(response_dict)
-    except:
+    except Exception as e:
+        print(e)
         return json.dumps({"status": "ERROR"})
 
 @app.route("/get_lan_configs", methods=["POST"])

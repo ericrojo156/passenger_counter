@@ -28,13 +28,15 @@ class DeviceState:
     def to_dict(self):
         return {
             "passenger_count": self.count,
-            "gps_coords": self.gps_coords
+            "gps_coords": self.gps_coords,
+            "devices_state_list": self.devices_state_list
         }
 
     def __str__(self):
         return json.dumps({
             "passenger_count": self.count,
-            "gps_coords": self.gps_coords
+            "gps_coords": self.gps_coords,
+            "devices_state_list": self.devices_state_list
         })
 
     @staticmethod
@@ -47,4 +49,5 @@ class DeviceState:
         device_state = DeviceState()
         device_state.count = state_dict["passenger_count"]
         device_state.gps_coords = state_dict["gps_coords"]
+        device_state.devices_state_list = state_dict["devices_state_list"]
         return device_state

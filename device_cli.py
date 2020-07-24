@@ -10,8 +10,10 @@ cli_parser.add_argument('--data', default=None, type=str)
 SET_CONFIG = "set_config"
 PULL_DATA = "pull_data"
 GET_CONFIG = "get_config"
-INC_COUNTER = "increment_counter"
-DEC_COUNTER = "decrement_counter"
+INC = "inc"
+DEC = "dec"
+GPS = "gps"
+GET_DEVICE_STATE = "get_device_state"
 
 if __name__ == "__main__":
     cli_args = cli_parser.parse_args()
