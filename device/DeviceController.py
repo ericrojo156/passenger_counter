@@ -99,13 +99,18 @@ class DeviceController:
                     succeeded = True
 
             elif (command == GPS):
+                this_address = self.config.get_address()
+                print("TRACE")
+                print(data)
                 if (type(data) == str):
                     data = json.loads(data)
                 if (self.config.gps_is_enabled()):
                     if (self.config.get_address() == data["device_address"]):
                         self.device_state.update_gps_coords(lat=data["lat"], lng=data["lng"])
+                        succeeded = True
                     else:
                         response_dict = lan_send(fromAddress=this_address, toAddress=data["device_address"], command=GPS, data=data)
+                        succeeded = response_dict["status"] == "SUCCESS"
 
             elif (command == GET_DEVICE_STATE):
                 if (type(data) == str):

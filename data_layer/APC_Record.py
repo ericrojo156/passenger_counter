@@ -34,7 +34,6 @@ class APC_Record:
     
     @staticmethod
     def from_dict(apc_record_dict: dict):
-        print("TRACE2")
         id = apc_record_dict["id"]
         master_device_state = DeviceState.from_dict(apc_record_dict["master_device"])
         apc_record = APC_Record(id=id, master_device_state=master_device_state)

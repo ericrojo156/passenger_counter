@@ -46,7 +46,6 @@ class DeviceState:
 
     @staticmethod
     def from_dict(state_dict: dict):
-        print(state_dict)
         device_state = DeviceState()
         device_state.count = state_dict["passenger_count"]
         device_state.gps_coords = state_dict["gps_coords"]

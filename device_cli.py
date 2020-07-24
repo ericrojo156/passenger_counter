@@ -12,7 +12,7 @@ PULL_DATA = "pull_data"
 GET_CONFIG = "get_config"
 INC = "inc"
 DEC = "dec"
-GPS = "update_gps"
+GPS = "gps"
 GET_DEVICE_STATE = "get_device_state"
 
 if __name__ == "__main__":
