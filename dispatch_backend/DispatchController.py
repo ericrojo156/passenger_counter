@@ -40,6 +40,7 @@ class DispatchController:
         return response_dict
 
     def push_apc_record(self, data):
+        print("TRACE1")
         response_dict = {"status": "ERROR"}
         master_device_address = data["master_device_address"]
         try:
