@@ -22,6 +22,9 @@ class DeviceConfig:
             self.save_config()
         return id
 
+    def set_config(self, config_dict):
+        self.config_dict = config_dict
+
     def load_config_json(self):
         config_json = self.config_io.load_config_json()
         return config_json
@@ -29,9 +32,12 @@ class DeviceConfig:
     def load_config(self):
         config_json = self.load_config_json()
         self.config_dict = json.loads(config_json)
+        return self.config_dict
 
     def save_config(self):
-        self.config_io.save_config_json(config_json=json.dumps(self.config_dict))
+        config_json = json.dumps(self.config_dict)
+        print(type(config_json))
+        self.config_io.save_config_json(config_json=config_json)
 
     def gps_is_enabled(self):
         return self.config_dict.get("trackGPS", True)

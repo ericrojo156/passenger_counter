@@ -19,8 +19,11 @@ def is_valid_device_address(master_device_address: str):
 def configure_device(config_json: str, master_device_address: str):
     response_dict = {"status": "ERROR"}
     if (is_valid_config_json(config_json) and is_valid_device_address(master_device_address)):
-        config = json.loads(config_json)
-        response_dict = requests.post(f"{master_device_address}/", json={"data": config, "command": SET_CONFIG}).json()
+        if (type(config_json) == str):
+            config = json.loads(config_json)
+        else:
+            config = config_json
+        response_dict = requests.post(f"{master_device_address}/", json={"data": {"set_config": config, "master_device_address": master_device_address}, "command": SET_CONFIG}).json()
         response_dict["status"] = "SUCCESS"
     return response_dict
 

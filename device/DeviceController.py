@@ -44,14 +44,19 @@ class DeviceController:
 
             elif (command == GET_CONFIG):
                 this_address = self.config.get_address()
+                if (type(data) == str):
+                    data = json.loads(data)
                 device_address = data["device_address"]
                 if (this_address == device_address):
                     config_json = self.config.load_config_json()
                     succeeded = len(config_json) > 0
                     data = json.loads(config_json)
-                else: # get config from config_dict (not master) on the same LAN
+                else: # get config from device (not master) on the same LAN
                     master_device_address = data["master_device_address"]
-                    response_dict = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG)
+                    data = lan_send(fromAddress=master_device_address, toAddress=device_address, command=GET_CONFIG, data=data)
+                    succeeded = len(data) > 0
+                    print(data)
+
             if (succeeded):
                 status = "SUCCESS"
 
