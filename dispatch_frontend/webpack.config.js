@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'production';
-var debug = false;
+var debug = true;
 var webpack = require('webpack');
 
 module.exports = {
