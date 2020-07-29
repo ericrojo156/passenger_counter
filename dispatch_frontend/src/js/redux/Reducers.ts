@@ -10,6 +10,7 @@ const vehicles = (vehiclesState: Immutable.Map<string, any> = vehicleStateDefaul
             action.vehicles.forEach(vehicle => {
                 let latest_record = vehicle.latest_record;
                 latest_record["master_device_address"] = vehicle.master_device_address;
+                latest_record.doors.forEach(door => {door.device_state = JSON.parse(door.device_state)})
                 vehiclesState = vehiclesState.setIn([vehicle.id], Immutable.Map<string, any>(latest_record));
             });
             return vehiclesState;

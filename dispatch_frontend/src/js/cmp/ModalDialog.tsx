@@ -30,7 +30,7 @@ class ModalDialog extends React.Component<any, {}> {
                 left                       : '5%',
                 right                      : '5%',
                 bottom                     : '5%',
-                background                 : 'rgba(1, 1, 1, 0)',
+                background                 : 'rgba(1, 1, 1, 0.50)',
                 overflow                   : 'auto',
                 WebkitOverflowScrolling    : 'touch',
                 outline                    : 'none',
@@ -59,11 +59,11 @@ class ModalDialog extends React.Component<any, {}> {
                             {vehicle.get("doors").map(
                                 device => {
                                     let device_label = device.device_label;
-                                    let deviceJSON = JSON.parse(device.device_state);
+                                    let device_state = device.device_state
                                     return (
                                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <Device id={deviceJSON.id} device_label={device_label} count={deviceJSON.passenger_count} gps={deviceJSON.gps_coords} openVehicleModal={null}/>
-                                            <ConfigIcon id={deviceJSON.id} setModalContent={this.props.setModalContent.bind(this)} hydrateConfigData={this.props.hydrateConfigData.bind(this)} master_device_address={vehicle.get("master_device_address")}/>
+                                            <Device id={device_state.id} device_label={device_label} count={device_state.passenger_count} gps={device_state.gps_coords} openVehicleModal={null}/>
+                                            <ConfigIcon id={device_state.id} setModalContent={this.props.setModalContent.bind(this)} hydrateConfigData={this.props.hydrateConfigData.bind(this)} master_device_address={vehicle.get("master_device_address")}/>
                                         </div>
                                     )
                                 }
@@ -90,8 +90,8 @@ class ModalDialog extends React.Component<any, {}> {
                     shouldCloseOnOverlayClick={true}
                     shouldCloseOnEsc={true}
                 >
-                    <CloseIcon closeModal={this.props.closeModal.bind(this)} />
                     {this.renderModalContent(vehicle)}
+                    <CloseIcon closeModal={this.props.closeModal.bind(this)} />
                 </Modal>
             </div>
         )
