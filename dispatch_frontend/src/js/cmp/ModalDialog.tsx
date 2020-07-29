@@ -71,7 +71,7 @@ class ModalDialog extends React.Component<any, {}> {
                     </div>
                 );
             } else if (contentType == actions.DEVICE_CONFIG) {
-                return <DeviceConfig />
+                return <DeviceConfig config={this.props.appState.configData}/>
             }
             else {
                 return <div>MODAL IN ERROR STATE</div>
