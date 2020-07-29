@@ -1,5 +1,5 @@
 import Vehicles from "../views/Vehicles";
-import DeviceConfig from "../views/DeviceConfig";
+import DeviceConfig from "./DeviceConfig";
 import {withRouter} from 'react-router-dom';
 import {bindActionCreators} from 'redux';
 import * as actions from '../redux/Actions';
@@ -16,4 +16,3 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 export const vehicles = withRouter(connect(mapStateToProps, mapDispatchToProps)(Vehicles));
-export const deviceConfig = withRouter(connect(mapStateToProps, mapDispatchToProps)(DeviceConfig));

@@ -6,8 +6,9 @@ import * as actions from '../redux/Actions';
 import {connect} from 'react-redux';
 import Device from './Device';
 import ConfigIcon from "./ConfigIcon";
-
-class VehicleModal extends React.Component<any, {}> {
+import DeviceConfig from "./DeviceConfig";
+import CloseIcon from "./CloseIcon";
+class ModalDialog extends React.Component<any, {}> {
 
     style;
 
@@ -47,7 +48,8 @@ class VehicleModal extends React.Component<any, {}> {
         this.props.closeModal();
     }
     renderModalContent(vehicle) {
-            if (vehicle.size > 0) {
+            let contentType = this.props.appState.modalData.get("contentType");
+            if (contentType == actions.VEHICLES_MODAL && vehicle.size > 0) {
                 return (
                     <div>
                         <div>
@@ -60,7 +62,7 @@ class VehicleModal extends React.Component<any, {}> {
                                     return (
                                         <div style={{display: 'flex', flexDirection: 'row'}}>
                                             <Device id={deviceJSON.id} label={deviceJSON.label} count={deviceJSON.count} gps={deviceJSON.gps} openVehicleModal={null}/>
-                                            <ConfigIcon id={deviceJSON.id} hydrateConfigData={this.props.hydrateConfigData.bind(this)} master_device_address={vehicle.get("master_device_address")}/>
+                                            <ConfigIcon id={deviceJSON.id} setModalContent={this.props.setModalContent.bind(this)} hydrateConfigData={this.props.hydrateConfigData.bind(this)} master_device_address={vehicle.get("master_device_address")}/>
                                         </div>
                                     )
                                 }
@@ -68,9 +70,11 @@ class VehicleModal extends React.Component<any, {}> {
                         </div>
                     </div>
                 );
+            } else if (contentType == actions.DEVICE_CONFIG) {
+                return <DeviceConfig />
             }
             else {
-                return <div></div>
+                return <div>MODAL IN ERROR STATE</div>
             }
     }
     render() {
@@ -85,6 +89,7 @@ class VehicleModal extends React.Component<any, {}> {
                     shouldCloseOnOverlayClick={true}
                     shouldCloseOnEsc={true}
                 >
+                    <CloseIcon closeModal={this.props.closeModal.bind(this)} />
                     {this.renderModalContent(vehicle)}
                 </Modal>
             </div>
@@ -101,4 +106,4 @@ const mapDispatchToProps = (dispatch) => {
     return bindActionCreators<any>(actions, dispatch);
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(VehicleModal));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ModalDialog));

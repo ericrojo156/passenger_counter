@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import {DEVICE_CONFIG} from "../redux/Actions";
 export default class ConfigIcon extends React.Component<any,{}> {
     baseUrl = "http://localhost:4000";
     defaultConfig = {"isMaster": false, "otherDevicesOnLAN": [], "trackGPS": true, "allowedBoarding": ["IN", "OUT"], "dividerLine": {"equation": {"a": 1, "b": 0, "order": 1}, "onBoardingDirection": [1, 1]}}
@@ -19,7 +19,7 @@ export default class ConfigIcon extends React.Component<any,{}> {
                     config => config.id == this.props.id
                 );
                 this.props.hydrateConfigData(this.props.id, selectedConfig || this.defaultConfig)
-                history.go("/deviceConfig");
+                this.props.setModalContent(DEVICE_CONFIG)
             }
         );
     }

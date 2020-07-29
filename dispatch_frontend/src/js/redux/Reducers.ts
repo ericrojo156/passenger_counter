@@ -3,7 +3,7 @@ import {combineReducers} from 'redux';
 import { vehicleStateDefault } from './VehicleState';
 import { modalStateDefault } from './modalState';
 import { configDataDefault } from './ConfigState';
-import { REFRESH, OPEN_MODAL, CLOSE_MODAL, HYDRATE_CONFIG_DATA } from './Actions';
+import { REFRESH, OPEN_MODAL, CLOSE_MODAL, HYDRATE_CONFIG_DATA, SET_MODAL_CONTENT } from './Actions';
 const vehicles = (vehiclesState: Immutable.Map<string, any> = vehicleStateDefault, action: any) => {
     switch (action.type) {
         case REFRESH:
@@ -23,8 +23,10 @@ const modalData = (modalState: Immutable.Map<string, any> = modalStateDefault, a
             modalState = modalState.setIn(["vehicle"], Immutable.Map<string, any>(action.vehicle));
             return modalState;
         case CLOSE_MODAL:
-            modalState = modalState.setIn(["isOpen"], false);
-            modalState = modalState.setIn(["vehicle"], vehicleStateDefault);
+            modalState = modalStateDefault;
+            return modalState;
+        case SET_MODAL_CONTENT:
+            modalState = modalState.setIn(["contentType"], action.contentType);
             return modalState;
         default:
             return modalState;
