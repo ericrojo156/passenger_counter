@@ -56,12 +56,13 @@ class ModalDialog extends React.Component<any, {}> {
                             {vehicle.get("label")}
                         </div>
                         <div>
-                            {vehicle.get("devices").map(
+                            {vehicle.get("doors").map(
                                 device => {
-                                    let deviceJSON = device.toJSON();
+                                    let device_label = device.device_label;
+                                    let deviceJSON = JSON.parse(device.device_state);
                                     return (
                                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <Device id={deviceJSON.id} label={deviceJSON.label} count={deviceJSON.count} gps={deviceJSON.gps} openVehicleModal={null}/>
+                                            <Device id={deviceJSON.id} device_label={device_label} count={deviceJSON.passenger_count} gps={deviceJSON.gps_coords} openVehicleModal={null}/>
                                             <ConfigIcon id={deviceJSON.id} setModalContent={this.props.setModalContent.bind(this)} hydrateConfigData={this.props.hydrateConfigData.bind(this)} master_device_address={vehicle.get("master_device_address")}/>
                                         </div>
                                     )

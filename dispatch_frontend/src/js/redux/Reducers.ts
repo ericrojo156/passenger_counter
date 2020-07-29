@@ -8,7 +8,9 @@ const vehicles = (vehiclesState: Immutable.Map<string, any> = vehicleStateDefaul
     switch (action.type) {
         case REFRESH:
             action.vehicles.forEach(vehicle => {
-                vehiclesState = vehiclesState.setIn([vehicle.id], Immutable.Map<string, any>(vehicle));
+                let latest_record = vehicle.latest_record;
+                latest_record["master_device_address"] = vehicle.master_device_address;
+                vehiclesState = vehiclesState.setIn([vehicle.id], Immutable.Map<string, any>(latest_record));
             });
             return vehiclesState;
         default:

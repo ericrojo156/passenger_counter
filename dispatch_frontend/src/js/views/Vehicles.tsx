@@ -2,8 +2,25 @@ import * as React from "react";
 import Device from "../cmp/Device"
 
 export default class Vehicles extends React.Component<any,{}> {
-    constructor() {
-        super();
+    baseUrl = "http://localhost:4000";
+    refreshHandler;
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        this.refreshHandler = setInterval(this.refresh.bind(this), 1000);
+    }
+    componentWillUnmount() {
+        clearInterval(this.refreshHandler);
+    }
+    refresh() {
+            fetch(this.baseUrl + "/refresh")
+            .then(response => response.json())
+            .then(data => {
+                const vehicles = Object.values(data.data);
+                this.props.refresh(vehicles);
+            }
+        );
     }
     openVehicleModal(id) {
         if (this.props.openModal != null) {
@@ -19,7 +36,7 @@ export default class Vehicles extends React.Component<any,{}> {
                 {vehicles.map(
                     vehicle => {
                         const vehicleJSON = vehicle.toJSON();
-                        return <Device id={vehicleJSON.id} label={vehicleJSON.label} count={vehicleJSON.count} gps={vehicleJSON.gps} openModal={this.openVehicleModal.bind(this)}/>
+                        return <Device id={vehicleJSON.id} device_label={vehicleJSON.device_label} count={vehicleJSON.master_device.passenger_count} gps={vehicleJSON.master_device.gps_coords} openModal={this.openVehicleModal.bind(this)}/>
                     }
                 )}
             </div>
