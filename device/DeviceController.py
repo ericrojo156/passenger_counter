@@ -100,7 +100,6 @@ class DeviceController:
 
             elif (command == GPS):
                 this_address = self.config.get_address()
-                print("TRACE")
                 print(data)
                 if (type(data) == str):
                     data = json.loads(data)
@@ -132,17 +131,22 @@ class DeviceController:
     def publish_data(self):
         if (self.config.is_master()):
             id = self.config.get_id()
-            post_APC_Record(master_device_address=self.config.get_address(), apc_record=APC_Record(id=id, master_device_state=self.device_state))
+            post_APC_Record(master_device_address=self.config.get_address(), apc_record=APC_Record(id=id, master_device_state=self.device_state, device_label=self.config.get_device_label()))
 
     def pull_and_publish_data(self):
         others_on_lan = self.config.other_LAN_devices()
+        master_device_state = self.device_state
+        master_device_state.count = 0 # clear master state count, so that the counts are not erroneously accumulated over time
         devices_state_list = []
         for toAddress in others_on_lan:
             thisAddress = self.config.get_address()
             response_dict = lan_send(fromAddress=thisAddress, toAddress=toAddress, command=PULL_DATA)
             if (response_dict["status"] == "SUCCESS"):
+                other_device_state = DeviceState.from_json(response_dict["data"]["device_state"])
+                master_device_state.count = master_device_state.count + other_device_state.count
                 devices_state_list.append(response_dict["data"])
-        self.device_state.collect_devices_states(devices_state_list)
+        master_device_state.collect_devices_states(devices_state_list)
+        self.device_state = master_device_state
         self.publish_data()
 
     def manage_master_daemons(self):

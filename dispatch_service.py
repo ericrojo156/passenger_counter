@@ -1,13 +1,17 @@
 import json
 import argparse
 from dispatch_backend.DispatchController import DispatchController
-from flask import Flask, request
+from flask import Flask, request, render_template
 app = Flask(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int)
 
 dispatch_controller: DispatchController = None
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
 
 @app.route("/set_lan_configs", methods=["POST"])
 def set_lan_configs():

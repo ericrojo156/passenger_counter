@@ -1,4 +1,7 @@
 device/device_config.json
+static/artifacts/**
 **/__pycache__
 kill_script.sh
 .vscode/*
+dispatch_frontend/artifacts/**
+dispatch_frontend/node_modules/**
