@@ -100,7 +100,6 @@ class DeviceController:
 
             elif (command == GPS):
                 this_address = self.config.get_address()
-                print(data)
                 if (type(data) == str):
                     data = json.loads(data)
                 if (self.config.gps_is_enabled()):
