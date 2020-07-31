@@ -1,18 +1,16 @@
 # RUN:
 # To read and write back out to video:
-# python passenger_counter.py --mode vertical \
-# 	--input videos/vertical_01.mp4 --output output/vertical_01.avi
+# python3 passenger_counter.py --mode vertical --input vertical_01.mp4 --output output/vertical_01.avi
 #
 # To read from webcam and write back out to disk:
-# python passenger_counter.py --mode vertical \
-# 	--output output/webcam_output.avi
+# python3 passenger_counter.py --mode vertical --output output/webcam_output.avi
 #
 # To run based on live feed:
-# python passenger_counter.py
+# python3 passenger_counter.py
 
-import DirectionTracker
-import CentroidTracker
-import TrackObject
+from DirectionTracker import DirectionTracker
+from CentroidTracker import CentroidTracker
+from TrackObject import TrackObject
 from multiprocessing import Process
 from multiprocessing import Queue
 from multiprocessing import Value
@@ -23,40 +21,40 @@ import argparse
 import time
 import cv2
 
-# def write_video(outputPath, writeVideo, frameQueue, W, H):
-# 	# initialize FourCC and video writer object
-# 	fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-# 	writer = cv2.VideoWriter(outputPath, fourcc, 30,
-# 		(W, H), True)
+def write_video(outputPath, writeVideo, frameQueue, W, H):
+	# initialize FourCC and video writer object
+	fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+	writer = cv2.VideoWriter(outputPath, fourcc, 30,
+		(W, H), True)
 
-# 	# loop while write flag is set or output frame queue is not empty
-# 	while writeVideo.value or not frameQueue.empty():
-# 		# check if the output frame queue is not empty
-# 		if not frameQueue.empty():
-# 			# get the frame from the queue and write the frame
-# 			frame = frameQueue.get()
-# 			writer.write(frame)
+	# loop while write flag is set or output frame queue is not empty
+	while writeVideo.value or not frameQueue.empty():
+		# check if the output frame queue is not empty
+		if not frameQueue.empty():
+			# get the frame from the queue and write the frame
+			frame = frameQueue.get()
+			writer.write(frame)
 
-# 	# release the video writer object
-# 	writer.release()
+	# release the video writer object
+	writer.release()
 
 # construct argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-# ap.add_argument("-m", "--mode", type=str, required=True,
-# 	choices=["horizontal", "vertical"],
-# 	help="direction in which people will be moving")
+ap.add_argument("-m", "--mode", type=str, required=True,
+	choices=["horizontal", "vertical"],
+	help="direction in which people will be moving")
 ap.add_argument("-i", "--input", type=str,
 	help="path to optional input video file")
 ap.add_argument("-o", "--output", type=str,
 	help="path to optional output video file")
-ap.add_argument("-s", "--skip-frames", type=int, default=30,
+ap.add_argument("-s", "--skip-frames", type=int, default=15,
 	help="# of skip frames between detections")
 args = vars(ap.parse_args())
 
 # if a video path was not supplied, use webcam
 if not args.get("input", False):
 	print("[INFO] starting video stream...")
-	# vs = VideoStream(src=0).start()
+	vs = VideoStream(src=0).start()
 	vs = VideoStream(usePiCamera=True).start()
 	time.sleep(2.0)
 
@@ -73,7 +71,9 @@ H = None
 # instantiate our centroid tracker, then initialize a list to store
 # each of our dlib correlation trackers, followed by a dictionary to
 # map each unique object ID to a track object
-ct = CentroidTracker(maxDisappeared=15, maxDistance=100)
+# ct = CentroidTracker(maxDistance=20) for video 1 - have to tune this
+# ct = CentroidTracker(maxDistance=100) for vertical 1
+ct = CentroidTracker(maxDistance=50)
 trackers = []
 trackableObjects = {}
 
@@ -81,7 +81,7 @@ trackableObjects = {}
 directionInfo = None
 
 # initialize MOG foreground background subtractor and start the FPS throughput estimator
-mog = cv2.bgsegm.createBackgroundSubtractorMOG()
+mog = cv2.createBackgroundSubtractorMOG2()
 fps = FPS().start()
 
 # loop over frames from video stream
@@ -96,18 +96,18 @@ while True:
 	# set object frame dimensions and direction counter
 	if W is None or H is None:
 		(H, W) = frame.shape[:2]
-		dc = DirectionCounter(args["mode"], H, W)
+		dt = DirectionTracker(args["mode"], H, W)
 
-	# # begin writing the video to disk if required
-	# if args["output"] is not None and writerProcess is None:
-	# 	# set write flad
-	# 	writeVideo = Value('i', 1)
-	# 	
-	# 	# initialize a process, and start the process
-	# 	frameQueue = Queue()
-	# 	writerProcess = Process(target=write_video, args=(
-	# 		args["output"], writeVideo, frameQueue, W, H))
-	# 	writerProcess.start()
+	# begin writing the video to disk if required
+	if args["output"] is not None and writerProcess is None:
+		# set write flad
+		writeVideo = Value('i', 1)
+		
+		# initialize a process, and start the process
+		frameQueue = Queue()
+		writerProcess = Process(target=write_video, args=(
+			args["output"], writeVideo, frameQueue, W, H))
+		writerProcess.start()
 
 	# initialize list for bounding box rectangles after background subtraction
 	rects = []
@@ -139,15 +139,15 @@ while True:
 		rects.append((startX, startY, endX, endY))
 
 	# This line will be set co-ordinates for our project
-	#  check if direction is vertical
-	# if args["mode"] == "vertical":
-	# 	# draw a horizontal line in the center of the frame - go up or down
-	# 	cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+	# check if direction is vertical
+	if args["mode"] == "vertical":
+		# draw a horizontal line in the center of the frame - go up or down
+		cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
 
-	# # else, the direction is horizontal
-	# else:
-	# 	# draw a vertical line in the center of the frame - go left or right
-	# 	cv2.line(frame, (W // 2, 0), (W // 2, H), (0, 255, 255), 2)
+	# else, the direction is horizontal
+	else:
+		# draw a vertical line in the center of the frame - go left or right
+		cv2.line(frame, (W // 2, 0), (W // 2, H), (0, 255, 255), 2)
 
 	# associate old object centroids with newly input object centroids
 	objects = ct.update(rects)
@@ -163,12 +163,12 @@ while True:
 
 		# find direction and update list of centroids
 		else:
-			dc.find_direction(to, centroid)
+			dt.find_direction(to, centroid)
 			to.centroids.append(centroid)
 
 			# if not counted aleady, find movement direction
 			if not to.counted:
-				directionInfo = dc.count_object(to, centroid)
+				directionInfo = dt.count_object(to, centroid)
 
 			# else, update colour to red to indicate object has been counted
 			else:
@@ -210,10 +210,10 @@ fps.stop()
 print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
-# # terminate video writer process
-# if writerProcess is not None:
-# 	writeVideo.value = 0
-# 	writerProcess.join()
+# terminate video writer process
+if writerProcess is not None:
+	writeVideo.value = 0
+	writerProcess.join()
 
 # if we are not using a video file, stop the camera video stream
 if not args.get("input", False):
